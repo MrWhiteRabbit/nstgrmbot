@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
-from auth_data import username, password
+from auth_data import auth_data
 import time
 import random
 from webdriver_manager.chrome import ChromeDriverManager
@@ -40,13 +40,13 @@ class NstgrmBot():
 
         username_input = browser.find_element(By.NAME, 'username')
         username_input.clear()
-        username_input.send_keys(username)
+        username_input.send_keys(self.username)
 
         time.sleep(2)
 
         password_input = browser.find_element(By.NAME, 'password')
         password_input.clear()
-        password_input.send_keys(password)
+        password_input.send_keys(self.password)
 
         password_input.send_keys(Keys.ENTER)
 
@@ -81,7 +81,7 @@ class NstgrmBot():
                 browser.get(url)
                 print(url)
                 try:
-                    like_button = browser.find_element(By.XPATH, '/html/body/div[1]/section/main/div/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button').click()
+                    self.make_like()
                     print('like!')
                     like_posts.append(url)
                 except Exception as ex:
@@ -112,11 +112,17 @@ class NstgrmBot():
             self.close_browser()
         else:
             time.sleep(random.randrange(1, 2))
-            like_button = '/html/body/div[1]/section/main/div/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button'
-            browser.find_element(By.XPATH, like_button).click()
+            self.make_like()
             time.sleep(random.randrange(2, 4))
             print(f'Поставлен лайк на пост {userpost}')
             self.close_browser()
+
+
+    def make_like(self):
+
+        browser = self.browser
+        like_button = '/html/body/div[1]/section/main/div/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button'
+        browser.find_element(By.XPATH, like_button).click()
 
     def put_many_likes(self, userpage):
 
@@ -171,8 +177,8 @@ class NstgrmBot():
                             browser.get(url)
                             time.sleep(2)
 
-                            like_button = '/html/body/div[1]/section/main/div/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button'
-                            browser.find_element(By.XPATH, like_button).click()
+                            self.make_like()
+
                             liked_post.append(url)
                             time.sleep(random.randrange(30, 50))
                             time.sleep(random.randrange(2, 4))
@@ -181,18 +187,17 @@ class NstgrmBot():
                         print(ex)
                         self.close_browser()
 
-
             self.close_browser()
 
 
+def main():
+    #auth_data = {'username': 'password', ...}
+    for key in auth_data.keys():
+        bot = NstgrmBot(username=key, password=auth_data.get(key))
+        bot.login()
+        bot.put_exactly_like('https://www.instagram.com/p/CVhof9NA0Nb/')
+        # bot.put_many_likes(url)
 
-            #like_button = '/html/body/div[1]/section/main/div/div[1]/article/div/div[2]/div/div[2]/section[1]/span[1]/button'
-            #browser.find_element(By.XPATH, like_button).click()
-            #time.sleep(random.randrange(2, 4))
-            #print(f'Поставлен лайк на пост {userpost}')
-            #self.close_browser()
 
-
-bot = NstgrmBot(username, password)
-bot.login()
-bot.put_many_likes('https://www.instagram.com/mvgodkina/')
+if __name__ == '__main__':
+    main()
